@@ -30,6 +30,7 @@ import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 @RequestMapping("/api/v1")
 public class UserController {
     private final UserService userService;
+
     private final PasswordEncoder passwordEncoder;
 
     public UserController(UserService userService, PasswordEncoder passwordEncoder) {
@@ -39,26 +40,27 @@ public class UserController {
 
     @PostMapping("/users")
     @ApiMessage("Create a new user")
-    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User potManUser)
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User postManUser)
             throws IdInvalidException {
-        boolean isEmailExit = userService.isEmailExits(potManUser.getEmail());
-        if (isEmailExit) {
+        boolean isEmailExist = this.userService.isEmailExist(postManUser.getEmail());
+        if (isEmailExist) {
             throw new IdInvalidException(
-                    "Email" + potManUser.getEmail() + " đã tồn tại!");
+                    "Email " + postManUser.getEmail() + "đã tồn tại, vui lòng sử dụng email khác.");
         }
 
-        String hasPassword = this.passwordEncoder.encode(potManUser.getPassword());
-        potManUser.setPassword(hasPassword);
-        User ericUser = this.userService.handleCreateUser(potManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertToResCreateUserDTO(ericUser));
+        String hashPassword = this.passwordEncoder.encode(postManUser.getPassword());
+        postManUser.setPassword(hashPassword);
+        User ericUser = this.userService.handleCreateUser(postManUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(ericUser));
     }
 
     @DeleteMapping("/users/{id}")
     @ApiMessage("Delete a user")
-    public ResponseEntity<Void> DeleteUser(@PathVariable("id") long id) throws IdInvalidException {
-        User user = userService.fetchUserById(id);
-        if (user == null) {
-            throw new IdInvalidException("User với id = " + id + " không tồn tại!");
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id)
+            throws IdInvalidException {
+        User currentUser = this.userService.fetchUserById(id);
+        if (currentUser == null) {
+            throw new IdInvalidException("User với id = " + id + " không tồn tại");
         }
 
         this.userService.handleDeleteUser(id);
@@ -66,37 +68,36 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    @ApiMessage("find user by id")
-    public ResponseEntity<ResUserDTO> fetchUserById(@PathVariable("id") long id)
-            throws IdInvalidException {
-        User user = userService.fetchUserById(id);
-        if (user == null) {
-            throw new IdInvalidException("User với id = " + id + " không tồn tại!");
+    @ApiMessage("fetch user by id")
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws IdInvalidException {
+        User fetchUser = this.userService.fetchUserById(id);
+        if (fetchUser == null) {
+            throw new IdInvalidException("User với id = " + id + " không tồn tại");
         }
-        ResUserDTO res = userService.convertToUserDTO(user);
 
-        return ResponseEntity.ok(res);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.userService.convertToResUserDTO(fetchUser));
     }
 
-    // Specification: để filter
+    // fetch all users
     @GetMapping("/users")
     @ApiMessage("fetch all users")
-    public ResponseEntity<ResultPaginationDTO> fetchAllUsers(
+    public ResponseEntity<ResultPaginationDTO> getAllUser(
             @Filter Specification<User> spec,
             Pageable pageable) {
 
-        return ResponseEntity.ok(this.userService.fetchAllUsers(spec, pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                this.userService.fetchAllUser(spec, pageable));
     }
 
     @PutMapping("/users")
-    @ApiMessage("Update a new user")
-    public ResponseEntity<ResUpdateUserDTO> UpdateUser(@RequestBody User user) throws IdInvalidException {
-        User ericUser = userService.handleUpdateUser(user);
+    @ApiMessage("Update a user")
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User user) throws IdInvalidException {
+        User ericUser = this.userService.handleUpdateUser(user);
         if (ericUser == null) {
-            throw new IdInvalidException("User với id = " + user.getId() + " không tồn tại!");
+            throw new IdInvalidException("User với id = " + user.getId() + " không tồn tại");
         }
-
-        return ResponseEntity.ok(this.userService.convertToUpdateUserDTO(ericUser));
+        return ResponseEntity.ok(this.userService.convertToResUpdateUserDTO(ericUser));
     }
 
 }

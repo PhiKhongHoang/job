@@ -1,6 +1,7 @@
 package vn.hoidanit.jobhunter.controller;
 
 import java.util.Optional;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,7 @@ public class JobController {
         }
 
         return ResponseEntity.ok()
-                .body(this.jobService.update(job));
+                .body(this.jobService.update(job, currentJob.get()));
     }
 
     @DeleteMapping("/jobs/{id}")

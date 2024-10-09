@@ -10,8 +10,8 @@ import vn.hoidanit.jobhunter.util.constant.GenderEnum;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ResUserDTO {
     private long id;
     private String email;
@@ -19,16 +19,27 @@ public class ResUserDTO {
     private GenderEnum gender;
     private String address;
     private int age;
-    private Instant createdAt;
     private Instant updatedAt;
+    private Instant createdAt;
 
     private CompanyUser company;
+
+    private RoleUser role;
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class CompanyUser {
+        private long id;
+        private String name;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RoleUser {
         private long id;
         private String name;
     }

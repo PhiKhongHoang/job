@@ -19,9 +19,12 @@ import vn.hoidanit.jobhunter.domain.Company;
 import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import vn.hoidanit.jobhunter.service.CompanyService;
 import org.springframework.web.bind.annotation.PutMapping;
+import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
+
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/companies")
+@RequestMapping("/api/v1/companies")
 public class CompanyController {
     private final CompanyService companyService;
 
@@ -37,7 +40,7 @@ public class CompanyController {
     // Specification: để filter
     @GetMapping()
     public ResponseEntity<ResultPaginationDTO> getCompany(@Filter Specification<Company> spec,
-            Pageable pageable) {
+                                                          Pageable pageable) {
         return ResponseEntity.ok(companyService.fetchAllCompany(spec, pageable));
     }
 
@@ -50,5 +53,12 @@ public class CompanyController {
     public ResponseEntity<Void> deleteCompany(@PathVariable("id") long id) {
         companyService.handleDeleteCompany(id);
         return ResponseEntity.ok().body(null);
+    }
+
+    @GetMapping("/{id}")
+    @ApiMessage("fetch company by id")
+    public ResponseEntity<Company> fetchCompanyById(@PathVariable("id") long id) {
+        Optional<Company> companyOptional = this.companyService.findById(id);
+        return ResponseEntity.ok().body(companyOptional.get());
     }
 }

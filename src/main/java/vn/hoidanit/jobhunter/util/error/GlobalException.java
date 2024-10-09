@@ -13,8 +13,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
 import vn.hoidanit.jobhunter.domain.RestResponse;
+
 
 @RestControllerAdvice
 public class GlobalException {
@@ -24,11 +24,21 @@ public class GlobalException {
             IdInvalidException.class,
     })
     public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
-        RestResponse<Object> res = new RestResponse<>();
+        RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         res.setError(ex.getMessage());
         res.setMessage("Exception occurs...");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
 
+    @ExceptionHandler(value = {
+            NoResourceFoundException.class,
+    })
+    public ResponseEntity<RestResponse<Object>> handleNotFoundException(Exception ex) {
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.NOT_FOUND.value());
+        res.setError(ex.getMessage());
+        res.setMessage("404 Not Found. URL may not exist...");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
@@ -41,23 +51,9 @@ public class GlobalException {
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         res.setError(ex.getBody().getDetail());
 
-        List<String> errors = fieldErrors.stream()
-                .map(f -> f.getDefaultMessage())
-                .collect(Collectors.toList());
-
+        List<String> errors = fieldErrors.stream().map(f -> f.getDefaultMessage()).collect(Collectors.toList());
         res.setMessage(errors.size() > 1 ? errors : errors.get(0));
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
-    }
-
-    @ExceptionHandler(value = {
-            NoResourceFoundException.class
-    })
-    public ResponseEntity<RestResponse<Object>> handleNotFoundException(Exception e) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.NOT_FOUND.value());
-        res.setError(e.getMessage());
-        res.setMessage("404 not found. url không tồn tại!");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
@@ -65,11 +61,21 @@ public class GlobalException {
             StorageException.class,
     })
     public ResponseEntity<RestResponse<Object>> handleFileUploadException(Exception ex) {
-        RestResponse<Object> res = new RestResponse<>();
+        RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         res.setError(ex.getMessage());
         res.setMessage("Exception upload file...");
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @ExceptionHandler(value = {
+            PermissionException.class,
+    })
+    public ResponseEntity<RestResponse<Object>> handlePermissionException(Exception ex) {
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.FORBIDDEN.value());
+        res.setMessage("Forbidden");
+        res.setError(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(res);
     }
 }

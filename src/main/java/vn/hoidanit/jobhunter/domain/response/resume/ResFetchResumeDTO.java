@@ -1,6 +1,7 @@
 package vn.hoidanit.jobhunter.domain.response.resume;
 
 import java.time.Instant;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class ResFetchResumeDTO {
     private String createdBy;
     private String updatedBy;
 
+    private String companyName;
     private UserResume user;
     private JobResume job;
 
