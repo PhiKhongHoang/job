@@ -49,7 +49,7 @@ public class Job {
     List<Resume> resumes;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = {"jobs"}) // #96 2:05
+    @JsonIgnoreProperties(value = { "jobs" }) // #96 2:05
     @JoinTable(name = "job_skill", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> skills;
 
